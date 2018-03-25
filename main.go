@@ -47,7 +47,7 @@ type GitHubRelease struct {
 	HTMLURL         string `json:"html_url,omitempty"`
 }
 
-var gitAPIRegexp = regexp.MustCompile(`([A-Za-z0-9]+@|http(|s)\:\/\/)([A-Za-z0-9.-]+)(:|\/)([^.]+)\/(.*(?=\.)+)(\.git)?`)
+var gitAPIRegexp = regexp.MustCompile(`([A-Za-z0-9]+@|http(|s)\:\/\/)([A-Za-z0-9.-]+)(:|\/)([^.]+)\/(.*)\.(\.git)?`)
 
 const gitHubBaseURL = "https://api.github.com"
 const gitHubUploadURL = "https://uploads.github.com"
