@@ -90,14 +90,13 @@ func (apiConfig GitHubApiConfig) print() {
 func (apiConfig GitHubApiConfig) getCreateReleasesURL() string {
 	return gitHubBaseURL +
 		"/repos/" + apiConfig.User + "/" + apiConfig.Repo +
-		"/releases?access_token=" + apiConfig.AuthToken
+		"/releases"
 }
 
 func (apiConfig GitHubApiConfig) getUploadAssetURL(releaseId int, name string) string {
 	return gitHubUploadURL +
 		"/repos/" + apiConfig.User + "/" + apiConfig.Repo +
-		"/releases/" + strconv.Itoa(releaseId) + "/assets?access_token=" + apiConfig.AuthToken +
-		"&name=" + name
+		"/releases/" + strconv.Itoa(releaseId) + "/assets?name=" + name
 }
 
 func inferGithubAPIConfig(config ConfigModel) (GitHubApiConfig, error) {
@@ -180,6 +179,7 @@ func postAsset(apiConf GitHubApiConfig, release *GitHubRelease, postAsset *os.Fi
 
 	req.ContentLength = stat.Size()
 	req.Header.Set("Content-Type", mediaType)
+	req.Header.Set("Authorization", "token "+apiConf.AuthToken)
 	resp, err := hc.Do(req)
 	if err != nil {
 		return err
@@ -191,7 +191,8 @@ func postAsset(apiConf GitHubApiConfig, release *GitHubRelease, postAsset *os.Fi
 	return nil
 }
 
-func postRelease(url string, release *GitHubRelease) error {
+func postRelease(config GitHubApiConfig, release *GitHubRelease) error {
+	url := config.getCreateReleasesURL();
 	jsonRelease, err := json.Marshal(release)
 	if err != nil {
 		return err
@@ -199,10 +200,20 @@ func postRelease(url string, release *GitHubRelease) error {
 	log.Printf(string(jsonRelease))
 
 	log.Infof("Posting Release to: %v", url)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonRelease))
+
+	hc := http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonRelease))
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "token "+config.AuthToken)
+	resp, err := hc.Do(req)
+	if err != nil {
+		return err
+	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 201 {
@@ -236,7 +247,7 @@ func main() {
 	releaseNotes := collectReleaseNotes(config.ChangelogFileList)
 
 	release := createRelease(config, releaseNotes)
-	err = postRelease(gitHubAPIConfig.getCreateReleasesURL(), &release)
+	err = postRelease(gitHubAPIConfig, &release)
 	if err != nil {
 		failf("Failed to create Github release entry with error: %v", err)
 	}
