@@ -66,7 +66,7 @@ func createConfigsModelFromEnvs() ConfigModel {
 		IsDraft:           os.Getenv("is_draft") == "true",
 		IsPrerelease:      os.Getenv("is_prerelease") == "true",
 		UploadAssetFile:   os.Getenv("upload_asset_file"),
-		GenerateNotes:     os.Getenv("generate_release_notes"),
+		GenerateNotes:     os.Getenv("generate_release_notes") == "true",
 	}
 }
 
