@@ -27,6 +27,7 @@ type ConfigModel struct {
 	IsDraft           bool
 	IsPrerelease      bool
 	UploadAssetFile   string
+	GenerateNotes     bool
 }
 
 type GitHubApiConfig struct {
@@ -45,6 +46,7 @@ type GitHubRelease struct {
 	Prerelease      bool   `json:"prerelease,omitempty"`
 	UploadURL       string `json:"upload_url,omitempty"`
 	HTMLURL         string `json:"html_url,omitempty"`
+	GenerateNotes	bool   `json:"generate_release_notes,omitempty"`
 }
 
 var gitAPIRegexp = regexp.MustCompile(`([A-Za-z0-9]+@|http(|s)\:\/\/)([A-Za-z0-9.-]+)(:|\/)([^.]+)\/(.*)\.(\.git)?`)
@@ -64,6 +66,7 @@ func createConfigsModelFromEnvs() ConfigModel {
 		IsDraft:           os.Getenv("is_draft") == "true",
 		IsPrerelease:      os.Getenv("is_prerelease") == "true",
 		UploadAssetFile:   os.Getenv("upload_asset_file"),
+		GenerateNotes:     os.Getenv("generate_release_notes"),
 	}
 }
 
@@ -78,6 +81,7 @@ func (configs ConfigModel) print() {
 	log.Printf("- IsDraft: %v", configs.IsDraft)
 	log.Printf("- IsPrerelease: %v", configs.IsPrerelease)
 	log.Printf("- UploadAssetFile: %v", configs.UploadAssetFile)
+	log.Printf("- GenerateNotes: %v", configs.GenerateNotes)
 }
 
 func (apiConfig GitHubApiConfig) print() {
@@ -148,6 +152,7 @@ func createRelease(config ConfigModel, releaseNotes string) GitHubRelease {
 		Prerelease:      config.IsPrerelease,
 		TargetCommitish: config.TargetCommitish,
 		Body:            releaseNotes,
+		GenerateNotes:   config.GenerateNotes,
 	}
 }
 
