@@ -39,6 +39,7 @@ workflows:
         - release_name: "MyRelease $BITRISE_BUILD_NUMBER"
         - release_tag: "v_$BITRISE_BUILD_NUMBER"
         - upload_asset_file: "asset/test_asset.txt"
+        - generate_release_notes: "true"
     - script:
         inputs:
         - content: |
