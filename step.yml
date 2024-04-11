@@ -120,6 +120,16 @@ inputs:
       value_options:
       - "true"
       - "false"
+  - generate_release_notes: "true"
+    opts:
+      title: "Generate Release Notes?"
+      summary: ""
+      description: |-
+       Generate Releasenotes? then , set to `true`.
+      is_required: false
+      value_options:
+      - "true"
+      - "false"
   - is_prerelease: "false"
     opts:
       title: "Is it a prerelease"
